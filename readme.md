@@ -92,7 +92,7 @@ cd ..
     --api_base "https://dashscope.aliyuncs.com/compatible-mode/v1" \
     --deployment_name "qwen-max-2025-01-25" \
     --api_version "" \
-    --api_key "sk-55115b94b7e54380b530a6f10954a4da" \
+    --api_key "<replace with token id>" \
    ```
 
 
