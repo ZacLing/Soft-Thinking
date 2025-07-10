@@ -34,7 +34,8 @@ class MathEvaluator:
                 "messages": body,
                 "max_tokens": 10,
                 "stop": "{END}",
-                "temperature": 0.0
+                "temperature": 0.0,
+                "model": MODEL_NAME
             }
             return inputs
         
@@ -288,6 +289,7 @@ CONSTRUCTED_URL = None
 API_KEY = None
 HEADERS = None
 
+'''
 def set_client(api_base=None, deployment_name=None, api_version=None, api_key=None):
     global API_BASE, DEPLOYMENT_NAME, API_VERSION, CONSTRUCTED_URL, API_KEY, HEADERS
     API_BASE = api_base
@@ -299,7 +301,19 @@ def set_client(api_base=None, deployment_name=None, api_version=None, api_key=No
         "Content-Type": "application/json",
         "api-key": api_key,
     }
+'''
     
+def set_client(api_base=None, deployment_name=None, api_version=None, api_key=None):
+    global API_BASE, CONSTRUCTED_URL, API_KEY, HEADERS, MODEL_NAME
+    API_BASE = api_base
+    CONSTRUCTED_URL = f"{API_BASE}/chat/completions"
+    API_KEY = api_key
+    MODEL_NAME = deployment_name
+
+    HEADERS = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+    }
     
 
 

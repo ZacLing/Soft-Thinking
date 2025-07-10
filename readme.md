@@ -73,6 +73,29 @@ cd ..
    bash scripts/baseline/qwq32b.sh
    ```
 
+## ✅✅ Run HeuSoft
+   ```bash
+   python run_sglang_softthinking.py \
+    --dataset "aime2024" \
+    --model_name "<replace with 14B model path>" \
+    --max_generated_tokens 32768 \
+    --temperature 0.6 \
+    --top_p 0.95 \
+    --top_k 30 \
+    --min_p 0.0 \
+    --mem_fraction_static 0.8 \
+    --start_idx 0 \
+    --end_idx 10000 \
+    --num_gpus 8 \
+    --num_samples 16  \
+    --use_llm_judge \
+    --api_base "https://dashscope.aliyuncs.com/compatible-mode/v1" \
+    --deployment_name "qwen-max-2025-01-25" \
+    --api_version "" \
+    --api_key "sk-55115b94b7e54380b530a6f10954a4da" \
+   ```
+
+
 ## 🔄 Reproduction Instructions
 
 ### 1. Baseline
