@@ -4,7 +4,7 @@
   <a href="https://arxiv.org/abs/2505.15778">
     <img src="https://img.shields.io/badge/arXiv-2505.15778-b31b1b.svg?style=flat" alt="arXiv">
   </a>
-  
+
 <a href="https://huggingface.co/papers/2505.15778">
     <img src="https://img.shields.io/badge/HuggingFace-Paper-orange.svg?style=flat" alt="Hugging Face Papers">
   </a>
@@ -73,27 +73,45 @@ cd ..
    bash scripts/baseline/qwq32b.sh
    ```
 
+
+
 ## ✅✅ Run HeuSoft
+
+1. **Test LLM-Judge API:**
+
    ```bash
-   python run_sglang_softthinking.py \
-    --dataset "aime2024" \
-    --model_name "<replace with 14B model path>" \
-    --max_generated_tokens 32768 \
-    --temperature 0.6 \
-    --top_p 0.95 \
-    --top_k 30 \
-    --min_p 0.0 \
-    --mem_fraction_static 0.8 \
-    --start_idx 0 \
-    --end_idx 10000 \
-    --num_gpus 8 \
-    --num_samples 16  \
-    --use_llm_judge \
-    --api_base "https://dashscope.aliyuncs.com/compatible-mode/v1" \
-    --deployment_name "qwen-max-2025-01-25" \
-    --api_version "" \
-    --api_key "<replace with token id>" \
+   python test_eval.py --api_key "<replace with api key>"
    ```
+
+   If the following message appears, the API connectivity test is considered successful.
+
+   ```bash
+   ✅ API connectivity test succeeded. Result: True
+   ```
+
+2. **Use Soft-Thinking for evaluation:**
+
+   ```bash
+      python run_sglang_softthinking.py \
+       --dataset "aime2024" \
+       --model_name "<replace with 14B model path>" \
+       --max_generated_tokens 32768 \
+       --temperature 0.6 \
+       --top_p 0.95 \
+       --top_k 30 \
+       --min_p 0.0 \
+       --mem_fraction_static 0.8 \
+       --start_idx 0 \
+       --end_idx 10000 \
+       --num_gpus 8 \
+       --num_samples 16  \
+       --use_llm_judge \
+       --api_base "https://dashscope.aliyuncs.com/compatible-mode/v1" \
+       --deployment_name "qwen-max-2025-01-25" \
+       --api_version "" \
+       --api_key "<replace with api key>" \
+   ```
+
 
 
 ## 🔄 Reproduction Instructions
