@@ -103,6 +103,7 @@ cd ..
        --mem_fraction_static 0.8 \
        --start_idx 0 \
        --end_idx 10000 \
+       --enable_soft_thinking \
        --num_gpus 8 \
        --num_samples 16  \
        --use_llm_judge \
@@ -112,7 +113,9 @@ cd ..
        --api_key "<replace with api key>" \
    ```
 
-3. **Only Run AIME2024**
+3. **Only Run AIME2024** 
+
+   ❗️NOTE:  If you plan to use “Use Soft-Thinking for evaluation”, please make sure you’re using the latest version of the script, which includes the newly added `--enable_soft_thinking` flag (this was previously missing).
 
    ```bash
    python run_aime2024.py \
@@ -126,6 +129,7 @@ cd ..
      --mem_fraction_static 0.8 \
      --start_idx 0 \
      --end_idx 10000 \
+     --enable_soft_thinking \
      --num_gpus 8 \
      --num_samples 16  \
    ```
