@@ -9,6 +9,10 @@ from math_verify import parse, verify, LatexExtractionConfig, ExprExtractionConf
 from latex2sympy2_extended import NormalizationConfig
 from transformers import AutoTokenizer
 import requests
+import time
+import random
+
+USE_DEBUG = False
 
 class MathEvaluator:
     def rule_judge(self, solution_str: str, ground_truth: str, finish_generation: bool = True) -> bool:
@@ -17,7 +21,7 @@ class MathEvaluator:
         pattern = r"</think>(.*)"
         match = re.search(pattern, text, re.DOTALL)
         return match.group(1).strip() if (match and finish_generation) else text[-truncate_length:]
-    
+
     def get_llm_judge_prompt(self, solution_str: str, ground_truth: str, extracted_answer: str = "", finish_generation: bool = True) -> str:
         raise NotImplementedError
     def llm_judge(self, solution_str: str, ground_truth: str, extracted_answer: str = "", finish_generation: bool = True) -> bool:
@@ -38,11 +42,18 @@ class MathEvaluator:
                 "model": MODEL_NAME
             }
             return inputs
-        
+
         scene_description = self.get_llm_judge_prompt(solution_str, ground_truth, extracted_answer, finish_generation)
         inputs = get_inputs(scene_description)
         response = run_api(inputs)
-        
+        if USE_DEBUG:
+            print("===== LLM Judge Response ====")
+            print(f"Solution string: {solution_str}")
+            print(f"Ground truth: {ground_truth}")
+            print(f"LLM judge response: {response['choices'][0]['message']['content'].strip()}")
+            print("===== End of LLM Judge Response ====")
+        else:
+            time.sleep(random.uniform(1, 1.5))
         return response["choices"][0]["message"]["content"].strip() == "YES"
 
 
@@ -76,7 +87,7 @@ class AIMEEvaluator(MathEvaluator):
             return False, "No extracted answer"
         else:
             return verify(gold, answer), str(answer)
-            
+
     def get_llm_judge_prompt(self, solution_str: str, ground_truth: str, extract_answer: str = "", finish_generation: bool = True) -> str:
         solution_str = self.extract_after_think(solution_str, finish_generation=finish_generation)
         return f"""Please determine whether the final answer provided in the model-generated response is equivalent to the reference answer from a math question. The final answer may either be enclosed in \\boxed{{}} or appear after "Answer:". If they are equivalent, return "YES"; if they are not, return "NO". Only return "YES" or "NO", and do not generate any other content.
@@ -187,7 +198,7 @@ class MATH500Evaluator(MathEvaluator):
         return f"""Please determine whether the final answer provided in the model-generated response is equivalent to the reference answer from a math question. The final answer may either be enclosed in \\boxed{{}} or appear after "Answer:". If they are equivalent, return "YES"; if they are not, return "NO". Only return "YES" or "NO", and do not generate any other content.
 Model-generated answer: {solution_str}
 Reference answer: {ground_truth}""".strip()
-    
+
 class AMCEvaluator(MathEvaluator):
     def rule_judge(self, solution_str: str, ground_truth: str, finish_generation: bool = True) -> bool:
         if not ground_truth.startswith("$"):
@@ -243,7 +254,7 @@ class GPQAEvaluator(MathEvaluator):
             return False, "No extracted answer"
         else:
             return verify(gold, answer), str(answer)
-        
+
     def get_llm_judge_prompt(self, solution_str: str, ground_truth: str, extract_answer: str = "", finish_generation: bool = True) -> str:
         solution_str = self.extract_after_think(solution_str, finish_generation=finish_generation)
         return f"""Please determine whether the final answer provided in the model-generated response is equivalent to the reference answer from a multiple choice question. The final answer may either be enclosed in \\boxed{{}} or appear after "Answer:". If they are equivalent, return "YES"; if they are not, return "NO". Only return "YES" or "NO", and do not generate any other content.
@@ -254,7 +265,7 @@ Reference answer: {ground_truth}""".strip()
 # class MBPPEvaluator(Evaluator):
 #     def rule_judge(self, solution_str: str, ground_truth: str, finish_generation: bool = True) -> bool:
 #         return True, "No extracted answer"
-        
+
 #     def get_llm_judge_prompt(self, solution_str: str, ground_truth: str, extract_answer: str = "", finish_generation: bool = True) -> str:
 #         solution_str = self.extract_after_think(solution_str, finish_generation=finish_generation)
 #         return f"""Please determine whether the final answer provided in the model-generated response is equivalent to the reference answer from a multiple choice question. The final answer may either be enclosed in \\boxed{{}} or appear after "Answer:". If they are equivalent, return "YES"; if they are not, return "NO". Only return "YES" or "NO", and do not generate any other content.
@@ -265,7 +276,7 @@ Reference answer: {ground_truth}""".strip()
 # class HUMANEVALEvaluator(Evaluator):
 #     def rule_judge(self, solution_str: str, ground_truth: str, finish_generation: bool = True) -> bool:
 #         return True, "No extracted answer"
-        
+
 #     def get_llm_judge_prompt(self, solution_str: str, ground_truth: str, extract_answer: str = "", finish_generation: bool = True) -> str:
 #         solution_str = self.extract_after_think(solution_str, finish_generation=finish_generation)
 #         return f"""Please determine whether the final answer provided in the model-generated response is equivalent to the reference answer from a multiple choice question. The final answer may either be enclosed in \\boxed{{}} or appear after "Answer:". If they are equivalent, return "YES"; if they are not, return "NO". Only return "YES" or "NO", and do not generate any other content.
@@ -302,7 +313,7 @@ def set_client(api_base=None, deployment_name=None, api_version=None, api_key=No
         "api-key": api_key,
     }
 '''
-    
+
 def set_client(api_base=None, deployment_name=None, api_version=None, api_key=None):
     global API_BASE, CONSTRUCTED_URL, API_KEY, HEADERS, MODEL_NAME
     API_BASE = api_base
@@ -314,21 +325,21 @@ def set_client(api_base=None, deployment_name=None, api_version=None, api_key=No
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}",
     }
-    
+
 
 
 
 # def call_llm_judge(message: list, args: argparse.Namespace) -> str:
 #     """
 #     Call the Qwen API with the given message.
-    
+
 #     Args:
 #         message (list): Message list for the API.
 #         args (argparse.Namespace): Parsed arguments.
-        
+
 #     Returns:
 #         str: The content of the completion response.
-        
+
 #     Raises:
 #         Exception: When the API call fails.
 #     """
@@ -354,8 +365,8 @@ def set_client(api_base=None, deployment_name=None, api_version=None, api_key=No
 #     if not rule_judge_result:
 #         print(f"No valid answer detected | LLM judge")
 #         call_llm_judge
-    
-        
+
+
 #     return example
 
 
@@ -392,7 +403,7 @@ def set_client(api_base=None, deployment_name=None, api_version=None, api_key=No
 #             else:
 #                 example['llm_judge_result'] = None
 #                 example['final_judge_result'] = None
-                
+
 #         return example
 #     except Exception as e:
 #         print(f"Failed to process example {example.get('idx', 'unknown')}: {str(e)}")
