@@ -112,7 +112,25 @@ cd ..
        --api_key "<replace with api key>" \
    ```
 
+3. **Only Run AIME2024**
 
+   ```bash
+   python run_aime2024.py \
+     --dataset "aime2024" \
+     --model_name "<replace with 32B model path>" \
+     --max_generated_tokens 32768 \
+     --temperature 0.6 \
+     --top_p 0.95 \
+     --top_k 30 \
+     --min_p 0.0 \
+     --mem_fraction_static 0.8 \
+     --start_idx 0 \
+     --end_idx 10000 \
+     --num_gpus 8 \
+     --num_samples 16  \
+   ```
+
+   
 
 ## 🔄 Reproduction Instructions
 
