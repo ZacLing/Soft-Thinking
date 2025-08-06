@@ -16,12 +16,12 @@ import torch
 import time
 import convert_livecodebench
 
-MATH_DATASETS = ["math500","aime2024","aime2025","gpqa_diamond","gsm8k","amc23"]
+MATH_DATASETS = ["math500","aime2024","aime2025","gpqa_diamond","gsm8k","amc23","BFSdataset"]
 CODE_DATASETS = ["humaneval","mbpp","livecodebench"]
 
 def main():
     parser = argparse.ArgumentParser(description='Process some parameters for text generation.')
-    parser.add_argument('--dataset', type=str, choices=["math500", "aime2024", "aime2025", "gpqa_diamond", "gsm8k", "amc23", "humaneval", "mbpp", "livecodebench"], help='Name of dataset')
+    parser.add_argument('--dataset', type=str, choices=["BFSdataset", "math500", "aime2024", "aime2025", "gpqa_diamond", "gsm8k", "amc23", "humaneval", "mbpp", "livecodebench"], help='Name of dataset')
     parser.add_argument('--sampling_backend', type=str, choices=["pytorch", "flashinfer"], default="flashinfer", help='Sampling backend')
     parser.add_argument('--model_name', type=str, required=True, default="DeepSeek-R1-Distill-Qwen-1.5B", help='Model name or path')
     parser.add_argument('--max_generated_tokens', type=int, default=32768, help='Limit the number of generated tokens')
@@ -104,6 +104,9 @@ def main():
             samples = json.load(f)
     elif dataset == "aime2024":
         with open("./datasets/aime2024.json") as f:
+            samples = json.load(f)
+    elif dataset == "BFSdataset":
+        with open("./datasets/BFSdataset.json") as f:
             samples = json.load(f)
     elif dataset == "aime2025":
         with open("./datasets/aime2025.json") as f:
@@ -217,7 +220,7 @@ Test Cases:
         for idx in range(start_idx, min(end_idx,len(samples))):
             sample = samples[idx]
 
-            if dataset in ["aime2024", "aime2025", "math500", "gsm8k", "amc23"]:
+            if dataset in ["aime2024", "aime2025", "math500", "gsm8k", "amc23", "BFSdataset"]:
                 chat = [{"role": "user", "content": MATH_QUERY_TEMPLATE.format(Question=sample["prompt"][0]["value"])}]
             elif dataset == "gpqa_diamond":
                 chat = [{"role": "user", "content": GPQA_QUERY_TEMPLATE.format(Question=sample["prompt"][0]["value"])}]
