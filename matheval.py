@@ -95,6 +95,53 @@ Model-generated answer: {solution_str}
 Reference answer: {ground_truth}""".strip()
 
 
+class BFSEvaluator(MathEvaluator):
+    def rule_judge(self, solution_str: str, ground_truth: str, finish_generation: bool = True) -> bool:
+        # if not ground_truth.startswith("$"):
+        #     ground_truth = f"${ground_truth}$"
+        gold = parse(
+            ground_truth,
+            extraction_config=[ExprExtractionConfig()],
+        )
+        answer = parse(
+            solution_str,
+            extraction_config=[
+                LatexExtractionConfig(
+                    normalization_config=NormalizationConfig(
+                        nits=False,
+                        malformed_operators=False,
+                        basic_latex=True,
+                        boxed="all",
+                        units=True,
+                    ),
+                    boxed_match_priority=0,
+                    try_extract_without_anchor=False,
+                ),
+                ExprExtractionConfig(),
+            ],
+            extraction_mode="first_match",
+        )
+        if len(answer) == 0:
+            return False, "No extracted answer"
+        else:
+            return verify(gold, answer), str(answer)
+
+    def get_llm_judge_prompt(self, solution_str: str, ground_truth: str, extract_answer: str = "", finish_generation: bool = True) -> str:
+        """
+        Generate a prompt asking the LLM to verify whether the model's predicted shortest path length 
+        is equivalent to the reference answer, for graph-based shortest path tasks.
+        """
+        solution_str = self.extract_after_think(solution_str, finish_generation=finish_generation)
+        return f"""Please determine whether the final answer provided in the model-generated response is equivalent to the reference answer from a shortest path graph question. 
+    The final answer typically indicates the minimum number of steps (edges) required to reach the target node from the root node. 
+    It may appear as a number at the end of the response or be explicitly stated as "steps", "length", or "distance". 
+
+    If they are exactly the same number, return "YES"; if not, return "NO". Only return "YES" or "NO", and do not generate any other content.
+
+    Model-generated answer: {solution_str}
+    Reference answer: {ground_truth}""".strip()
+
+
 class GSM8KEvaluator(MathEvaluator):
     def rule_judge(self, solution_str: str, ground_truth: str, finish_generation: bool = True) -> bool:
         # if not ground_truth.startswith("$"):
@@ -287,7 +334,7 @@ Reference answer: {ground_truth}""".strip()
 evaluator_map = {
     "aime2024": AIMEEvaluator(),
     "aime2025": AIMEEvaluator(),
-    "BFSdataset": AIMEEvaluator(),
+    "BFSdataset": BFSEvaluator(),
     "gsm8k": GSM8KEvaluator(),
     "math500": MATH500Evaluator(),
     "gpqa_diamond": GPQAEvaluator(),
