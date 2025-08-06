@@ -287,6 +287,7 @@ Reference answer: {ground_truth}""".strip()
 evaluator_map = {
     "aime2024": AIMEEvaluator(),
     "aime2025": AIMEEvaluator(),
+    "BFSdataset": AIMEEvaluator(),
     "gsm8k": GSM8KEvaluator(),
     "math500": MATH500Evaluator(),
     "gpqa_diamond": GPQAEvaluator(),
